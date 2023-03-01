@@ -17,7 +17,11 @@ module "aws_static_site" {
   aws_account_name        = "my-aws-account"
   deployment              = "dev"
   rewrite_rules_location  = "https://.../rules/rules.json"
-  site_settings           = {}
+  site_settings           = {
+    top_level_domain      = "blake-website-test.tamu.edu"
+    route53_domain        = "blake-website-test.cloud.tamu.edu"
+    additional_domains    = []
+  }
 ```
 
 The `site_settings` line take a dictionary of variable overrides and includes the following:
