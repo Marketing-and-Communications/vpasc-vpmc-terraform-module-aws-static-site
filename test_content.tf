@@ -22,7 +22,7 @@ resource "aws_s3_object" "test_index" {
 
   etag = md5(local.test_index)
 
-  #lifecycle {
-  #  ignore_changes = all
-  #}
+  lifecycle {
+    ignore_changes = all
+  }
 }
