@@ -3,8 +3,11 @@ locals {
   domain = "${var.deployment}.${var.site_settings.route53_domain}"
   sans = concat(
     [local.domain],
+    # This is for the top-level domain in production only
     var.site_settings.top_level_domain == "" || var.deployment != "prod" ? [] : [var.site_settings.top_level_domain],
-    var.site_settings.additional_domains == null ? tolist([]) : tolist(var.site_settings.additional_domains)
+    var.site_settings.additional_domains == null ? tolist([]) : tolist(var.site_settings.additional_domains),
+    # This is for the optional global accelerator
+    var.global_accelerator_source == "" ? [] : [var.global_accelerator_source]
   )
 
 }
