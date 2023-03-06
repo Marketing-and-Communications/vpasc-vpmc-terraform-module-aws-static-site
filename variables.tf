@@ -124,6 +124,6 @@ variable "rules_cache_timeout" {
 }
 
 variable "site_settings" {
-  type        = map(any)
+  #type        = map(any)
   description = "A map of site settings that represent user-configurable parameters"
 }
