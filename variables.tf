@@ -39,6 +39,18 @@ variable "error_response_404_path" {
   default     = "/404.html"
 }
 
+variable "global_accelerator_source" {
+  description = "The source address for the global accelerator (i.e., tamu.edu). Leave blank to not use a GA"
+  type        = string
+  default     = ""
+}
+
+variable "global_accelerator_target" {
+  description = "The target address for the global accelerator (i.e., www.tamu.edu). Leave blank to not use a GA"
+  type        = string
+  default     = ""
+}
+
 variable "html_ttl" {
   type        = number
   description = "The number of seconds to cache .html files (except for index.html)"
