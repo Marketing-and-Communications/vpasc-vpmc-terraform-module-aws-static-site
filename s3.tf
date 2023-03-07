@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "bucket" {
-  bucket = "site-${local.site_name_dashes}-${var.deployment}"
-  # force_destroy = "true"
+  bucket        = "site-${local.site_name_dashes}-${var.deployment}"
+  force_destroy = var.allow_bucket_force_destroy
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "bucket" {
@@ -42,7 +42,7 @@ resource "aws_s3_bucket_public_access_block" "bucket" {
 
 resource "aws_s3_bucket" "bucket_logging" {
   bucket        = "site-${local.site_name_dashes}-${var.deployment}-logs"
-  # force_destroy = "true"
+  force_destroy = var.allow_bucket_force_destroy
 }
 
 resource "aws_s3_bucket_lifecycle_configuration" "bucket_logging" {
