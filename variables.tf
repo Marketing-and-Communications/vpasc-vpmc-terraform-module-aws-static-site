@@ -1,3 +1,9 @@
+variable "allow_bucket_force_destroy" {
+  type        = bool
+  description = "Allow buckets to be destroyed when doing a terraform destroy"
+  default     = false
+}
+
 variable "aws_account_name" {
   type        = string
   description = "Name of the AWS account where this site lives"
