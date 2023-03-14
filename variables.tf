@@ -36,13 +36,13 @@ variable "deployment" {
 variable "error_response_403_path" {
   type        = string
   description = "The location of the 403 error page"
-  default     = "/403.html"
+  default     = "/error/403.html"
 }
 
 variable "error_response_404_path" {
   type        = string
   description = "The location of the 404 error page"
-  default     = "/404.html"
+  default     = "/error/404.html"
 }
 
 variable "global_accelerator_source" {
