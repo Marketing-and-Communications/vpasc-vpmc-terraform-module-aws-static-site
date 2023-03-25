@@ -59,7 +59,9 @@ resource "aws_cloudfront_distribution" "site" {
     target_origin_id = aws_s3_bucket.bucket.id
 
     forwarded_values {
-      query_string = false
+      query_string            = true
+      # Include query strings, but don't use them for caching
+      query_string_cache_keys = []
 
       cookies {
         forward = "none"

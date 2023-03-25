@@ -112,6 +112,18 @@ variable "minimum_protocol_version" {
   default     = "TLSv1.2_2021"
 }
 
+variable "onepassword_url" {
+  type        = string
+  description = "The URL to the 1password connect API server"
+  default     = "http://localhost:8080"
+}
+
+variable "onepassword_vault" {
+  type        = string
+  description = "The name of the 1password vault where S3 keys will be stored"
+  default     = "it-svc-aws-static-sites"
+}
+
 variable "origin_ssl_protocols" {
   type        = list(any)
   description = "The TLS versions supported by the origin"
