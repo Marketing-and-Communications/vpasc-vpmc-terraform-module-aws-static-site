@@ -45,6 +45,13 @@ The `site_settings` line take a dictionary of variable overrides and includes th
 |route53_tld|cloud.tamu.edu|The top level domain in route53 where subdomains are added|
 |rules_cache_timeout|3602|The number of seconds to cache rewrite rules|
 
+## IAM User Bucket Credentials
+
+Access to IAM user credentials for S3 bucket access is provided through [TAMU's instance of
+1password](https://tamu.1password.com). By default, all keys are stored in the
+`it-svc-aws-static-sites` vault under the name of the website.
+
 ## Releases
+
 1. Create a pull request with a target branch of `main`
 2. Tag a release with v1.0.0 (or whatever version) and a workflow will run that updates tags to support semantic versioning in terraform.
