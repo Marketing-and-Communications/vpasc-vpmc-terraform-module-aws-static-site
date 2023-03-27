@@ -11,6 +11,8 @@ const flagSyntax = /\[([^\]]+)]$/;
 const partsSyntax = /\s+|\t+/g;
 const DEFAULT_CACHE_TIMEOUT = 600 * 1000; // (600 seconds in milliseconds)
 
+const DEBUG = false;
+
 // Hack to print out regex, which otherwise won't be represented in JSON
 RegExp.prototype.toJSON = RegExp.prototype.toString;
 
@@ -62,12 +64,15 @@ class RuleSet {
     if (this.rewriteRules === undefined) {
       if (!this.rawRuleSet.startsWith('http://') && !this.rawRuleSet.startsWith('https://')) {
         // This is used for local rule testing
+        if (DEBUG)
+          console.log(`Attempting to load rules from local filesystem: ${__dirname}/${this.rawRuleSet}`);
         return fsp.readFile(`${__dirname}/${this.rawRuleSet}`).then((res) => {
           this.rewriteRules = this.parseRules(JSON.parse(res));
           console.log("rewriteRules:");
           console.log(JSON.stringify(this.rewriteRules));
           return true;
         }).catch(err => {
+          console.log('Unable to load rules... Using empty rule set!');
           this.rewriteRules = []; // No rules if can't load rules
           return true;
         });
@@ -135,8 +140,12 @@ class RuleSet {
   }
 
   separateUriAndQs(uriPlusQs) {
-    const parts = uriPlusQs.split('?');
-    return parts.length > 1 ? [parts[0], parts[1]] : [parts[0], ''];
+    // We split the string this way because the query string could contain 
+    // multiple ? characters
+    const [uri, ...qsArray] = uriPlusQs.split('?');
+    const querystring = qsArray.join('?');
+
+    return [uri, querystring];
   }
 
   applyRules(e) {
