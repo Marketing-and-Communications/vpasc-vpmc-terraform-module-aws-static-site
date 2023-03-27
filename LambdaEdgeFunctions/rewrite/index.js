@@ -13,9 +13,15 @@ module.exports.handler = (e, ctx, cb) => {
     .then(() => {
       var res = ruleSet.applyRules(e).res
       if (res.uri !== undefined && res.uri.includes('?')) {
-        res.querystring = res.uri.split('?')[1];
-        res.uri = res.uri.split('?')[0];
+        // We split the string this way because the query string could contain 
+        // multiple ? characters
+        const [uri, ...qsArray] = res.uri.split('?');
+        res.uri = uri;
+        res.querystring = qsArray.join('?');
+        console.log(`uri: ${res.uri} querystring: ${res.querystring}`);
       }
+      else
+        console.log(`uri: ${res.uri}`);
       console.log('Result:');
       console.log(JSON.stringify(res));
       cb(null, res);
