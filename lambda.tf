@@ -54,7 +54,7 @@ resource "aws_cloudwatch_log_group" "security_log_group" {
 }
 
 resource "aws_cloudwatch_log_group" "host_header_log_group" {
-  count = var.enable_hostname_rewrites ? 1 : 0
+  count = local.enable_hostname_rewrites ? 1 : 0
 
   name              = "/aws/lambda/${aws_lambda_function.edge_host_header[0].function_name}"
   retention_in_days = var.log_expiration
@@ -92,7 +92,7 @@ resource "aws_lambda_function" "edge_security" {
 }
 
 resource "aws_lambda_function" "edge_host_header" {
-  count = var.enable_hostname_rewrites ? 1 : 0
+  count = local.enable_hostname_rewrites ? 1 : 0
 
   filename      = data.archive_file.zip_edge_host_header[0].output_path
   function_name = "LambdaEdgeHostHeaderFunction-${var.deployment}"
@@ -127,7 +127,7 @@ EOT
 }
 
 data "external" "host_header_lambda_dependencies" {
-  count = var.enable_hostname_rewrites ? 1 : 0
+  count = local.enable_hostname_rewrites ? 1 : 0
 
   program = ["bash", "-c", <<EOT
 (cd ${path.module}/LambdaEdgeFunctions/host_header && LAMBDA_FUNCTION_NAME=host_header \
@@ -154,7 +154,7 @@ data "archive_file" "zip_edge_security" {
 }
 
 data "archive_file" "zip_edge_host_header" {
-  count = var.enable_hostname_rewrites ? 1 : 0
+  count = local.enable_hostname_rewrites ? 1 : 0
 
   type             = "zip"
   source_dir       = data.external.host_header_lambda_dependencies[0].result.target_dir
@@ -178,4 +178,5 @@ variable "lambda_runtime" {
 variable "site_settings" {
   #type        = map(any)
   description = "A map of site settings that represent user-configurable parameters"
+  default     = {}
 }
