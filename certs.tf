@@ -1,14 +1,15 @@
 locals {
   
   domain = "${var.deployment}.${var.site_settings.route53_domain}"
-  sans = concat(
+  sans = distinct(concat(
     [local.domain],
     # This is for the top-level domain in production only
     var.site_settings.top_level_domain == "" || var.deployment != "prod" ? [] : [var.site_settings.top_level_domain],
     var.site_settings.additional_domains == null ? tolist([]) : tolist(var.site_settings.additional_domains),
     # This is for the optional global accelerator
-    var.global_accelerator_source == "" ? [] : [var.global_accelerator_source]
-  )
+    var.global_accelerator_source == "" ? [] : [var.global_accelerator_source],
+    try(var.site_settings.additional_certs, var.additional_certs)
+  ))
 
 }
 

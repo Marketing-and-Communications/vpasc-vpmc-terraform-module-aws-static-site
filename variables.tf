@@ -1,3 +1,15 @@
+variable "additional_certs" {
+  type        = list(any)
+  description = "Additional SANs that will be added to the generated ACM certificate"
+  default     = []
+}
+
+variable "additional_cloudfront_aliases" {
+  type        = list(any)
+  description = "Additional aliases that will be added to CloudFront without being added as cert SANs"
+  default     = []
+}
+
 variable "allow_bucket_force_destroy" {
   type        = bool
   description = "Allow buckets to be destroyed when doing a terraform destroy"
@@ -44,6 +56,13 @@ variable "error_response_404_path" {
   description = "The location of the 404 error page"
   default     = "/error/404.html"
 }
+
+# This was moved to lambda.tf so that localstack could use that file independently
+#variable "enable_hostname_rewrites" {
+#  type        = bool
+#  description = "Whether or not to install a viewer lambda to capture the original hostname as an additional header to enable rewrites based on hostname, not just URI"
+#  default     = false
+#}
 
 variable "global_accelerator_source" {
   description = "The source address for the global accelerator (i.e., tamu.edu). Leave blank to not use a GA"
@@ -153,7 +172,8 @@ variable "rules_cache_timeout" {
   default     = 3602
 }
 
-variable "site_settings" {
-  #type        = map(any)
-  description = "A map of site settings that represent user-configurable parameters"
-}
+# This was moved to lambda.tf so that localstack could use that file independently
+#variable "site_settings" {
+#  #type        = map(any)
+#  description = "A map of site settings that represent user-configurable parameters"
+#}

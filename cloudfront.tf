@@ -1,9 +1,10 @@
 locals {
-  aliases = concat(
+  aliases = distinct(concat(
     [local.domain],
     var.site_settings.top_level_domain == "" || var.deployment != "prod" ? [] : [var.site_settings.top_level_domain],
-    var.site_settings.additional_domains == null ? tolist([]) : tolist(var.site_settings.additional_domains)
-  )
+    var.site_settings.additional_domains == null ? tolist([]) : tolist(var.site_settings.additional_domains),
+    try(var.site_settings.additional_cloudfront_aliases, tolist([]))
+  ))
 }
 
 
@@ -59,7 +60,7 @@ resource "aws_cloudfront_distribution" "site" {
     target_origin_id = aws_s3_bucket.bucket.id
 
     forwarded_values {
-      query_string            = true
+      query_string = true
       # Include query strings, but don't use them for caching
       query_string_cache_keys = []
 
@@ -80,6 +81,16 @@ resource "aws_cloudfront_distribution" "site" {
       event_type   = "origin-response"
       lambda_arn   = aws_lambda_function.edge_security.qualified_arn
       include_body = false
+    }
+
+    dynamic "lambda_function_association" {
+      for_each = local.enable_hostname_rewrites ? toset([0]) : toset([])
+
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = aws_lambda_function.edge_host_header[0].qualified_arn
+        include_body = false
+      }
     }
 
     min_ttl     = try(var.site_settings.min_ttl, var.min_ttl)
@@ -137,6 +148,16 @@ resource "aws_cloudfront_distribution" "site" {
       include_body = false
     }
 
+    dynamic "lambda_function_association" {
+      for_each = local.enable_hostname_rewrites ? toset([0]) : toset([])
+
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = aws_lambda_function.edge_host_header[0].qualified_arn
+        include_body = false
+      }
+    }
+
     min_ttl                = try(var.site_settings.html_ttl, var.html_ttl)
     default_ttl            = try(var.site_settings.html_ttl, var.html_ttl)
     max_ttl                = try(var.site_settings.html_ttl, var.html_ttl)
@@ -169,6 +190,16 @@ resource "aws_cloudfront_distribution" "site" {
       event_type   = "origin-response"
       lambda_arn   = aws_lambda_function.edge_security.qualified_arn
       include_body = false
+    }
+
+    dynamic "lambda_function_association" {
+      for_each = local.enable_hostname_rewrites ? toset([0]) : toset([])
+
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = aws_lambda_function.edge_host_header[0].qualified_arn
+        include_body = false
+      }
     }
 
     min_ttl                = try(var.site_settings.css_ttl, var.css_ttl)
@@ -205,6 +236,16 @@ resource "aws_cloudfront_distribution" "site" {
       include_body = false
     }
 
+    dynamic "lambda_function_association" {
+      for_each = local.enable_hostname_rewrites ? toset([0]) : toset([])
+
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = aws_lambda_function.edge_host_header[0].qualified_arn
+        include_body = false
+      }
+    }
+
     min_ttl                = try(var.site_settings.javascript_ttl, var.javascript_ttl)
     default_ttl            = try(var.site_settings.javascript_ttl, var.javascript_ttl)
     max_ttl                = try(var.site_settings.javascript_ttl, var.javascript_ttl)
@@ -237,6 +278,16 @@ resource "aws_cloudfront_distribution" "site" {
       event_type   = "origin-response"
       lambda_arn   = aws_lambda_function.edge_security.qualified_arn
       include_body = false
+    }
+
+    dynamic "lambda_function_association" {
+      for_each = local.enable_hostname_rewrites ? toset([0]) : toset([])
+
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = aws_lambda_function.edge_host_header[0].qualified_arn
+        include_body = false
+      }
     }
 
     min_ttl                = try(var.site_settings.media_ttl, var.media_ttl)
@@ -273,6 +324,16 @@ resource "aws_cloudfront_distribution" "site" {
       include_body = false
     }
 
+    dynamic "lambda_function_association" {
+      for_each = local.enable_hostname_rewrites ? toset([0]) : toset([])
+
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = aws_lambda_function.edge_host_header[0].qualified_arn
+        include_body = false
+      }
+    }
+
     min_ttl                = try(var.site_settings.media_ttl, var.media_ttl)
     default_ttl            = try(var.site_settings.media_ttl, var.media_ttl)
     max_ttl                = try(var.site_settings.media_ttl, var.media_ttl)
@@ -305,6 +366,16 @@ resource "aws_cloudfront_distribution" "site" {
       event_type   = "origin-response"
       lambda_arn   = aws_lambda_function.edge_security.qualified_arn
       include_body = false
+    }
+
+    dynamic "lambda_function_association" {
+      for_each = local.enable_hostname_rewrites ? toset([0]) : toset([])
+
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = aws_lambda_function.edge_host_header[0].qualified_arn
+        include_body = false
+      }
     }
 
     min_ttl                = try(var.site_settings.media_ttl, var.media_ttl)
@@ -341,6 +412,16 @@ resource "aws_cloudfront_distribution" "site" {
       include_body = false
     }
 
+    dynamic "lambda_function_association" {
+      for_each = local.enable_hostname_rewrites ? toset([0]) : toset([])
+
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = aws_lambda_function.edge_host_header[0].qualified_arn
+        include_body = false
+      }
+    }
+
     min_ttl                = try(var.site_settings.media_ttl, var.media_ttl)
     default_ttl            = try(var.site_settings.media_ttl, var.media_ttl)
     max_ttl                = try(var.site_settings.media_ttl, var.media_ttl)
@@ -373,6 +454,16 @@ resource "aws_cloudfront_distribution" "site" {
       event_type   = "origin-response"
       lambda_arn   = aws_lambda_function.edge_security.qualified_arn
       include_body = false
+    }
+
+    dynamic "lambda_function_association" {
+      for_each = local.enable_hostname_rewrites ? toset([0]) : toset([])
+
+      content {
+        event_type   = "viewer-request"
+        lambda_arn   = aws_lambda_function.edge_host_header[0].qualified_arn
+        include_body = false
+      }
     }
 
     min_ttl                = try(var.site_settings.pdf_ttl, var.pdf_ttl)
