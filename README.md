@@ -21,6 +21,7 @@ module "aws_static_site" {
     top_level_domain      = "blake-website-test.tamu.edu"
     route53_domain        = "blake-website-test.cloud.tamu.edu"
     additional_domains    = []
+    additional_certs      = []
   }
 ```
 
@@ -28,6 +29,9 @@ The `site_settings` line take a dictionary of variable overrides and includes th
 
 | Parameter | Default Value | Description |
 |-----------|---------------|-------------|
+|additional_certs|[]|Additional SANs to add to the generated cert|
+|additional_cloudfront_aliases|[]|Additional aliases that will be added to CloudFront without being added as cert SANs|
+|additional_domains|[]|Additional domains that will be added as aliases and cert SANs|
 |css_ttl|2592000|The number of seconds to cache CSS content|
 |def_html_ttl|1801|The number of seconds to cache HTML content|
 |default_ttl|60|Default number of seconds to cache content|

@@ -1,3 +1,7 @@
+locals {
+  enable_hostname_rewrites = try(var.site_settings.enable_hostname_rewrites == "true", var.enable_hostname_rewrites)
+}
+
 resource "aws_iam_role" "iam_for_lambda" {
   name = "iam-for-lambda-edge-${var.deployment}"
 
@@ -49,6 +53,13 @@ resource "aws_cloudwatch_log_group" "security_log_group" {
   retention_in_days = var.log_expiration
 }
 
+resource "aws_cloudwatch_log_group" "host_header_log_group" {
+  count = var.enable_hostname_rewrites ? 1 : 0
+
+  name              = "/aws/lambda/${aws_lambda_function.host_header.function_name}"
+  retention_in_days = var.log_expiration
+}
+
 resource "aws_iam_role_policy_attachment" "attach_iam_policy_to_iam_role" {
   role       = aws_iam_role.iam_for_lambda.name
   policy_arn = aws_iam_policy.iam_policy_for_lambda.arn
@@ -56,7 +67,7 @@ resource "aws_iam_role_policy_attachment" "attach_iam_policy_to_iam_role" {
 
 
 resource "aws_lambda_function" "edge_rewrite" {
-  filename = data.archive_file.zip_edge_rewrite.output_path
+  filename      = data.archive_file.zip_edge_rewrite.output_path
   function_name = "LambdaEdgeRewriteFunction-${var.deployment}"
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "index.handler"
@@ -68,7 +79,22 @@ resource "aws_lambda_function" "edge_rewrite" {
 }
 
 resource "aws_lambda_function" "edge_security" {
-  filename = data.archive_file.zip_edge_security.output_path
+  filename      = data.archive_file.zip_edge_security.output_path
+  function_name = "LambdaEdgeSecurityFunction-${var.deployment}"
+  role          = aws_iam_role.iam_for_lambda.arn
+  handler       = "index.handler"
+  publish       = true
+
+  source_code_hash = data.archive_file.zip_edge_security.output_base64sha256
+
+  runtime = "nodejs${var.lambda_runtime}.x"
+
+}
+
+resource "aws_lambda_function" "edge_host_header" {
+  count = var.enable_hostname_rewrites ? 1 : 0
+
+  filename      = data.archive_file.zip_edge_security.output_path
   function_name = "LambdaEdgeSecurityFunction-${var.deployment}"
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "index.handler"
@@ -100,6 +126,17 @@ EOT
   ]
 }
 
+data "external" "host_header_lambda_dependencies" {
+  count = var.enable_hostname_rewrites ? 1 : 0
+
+  program = ["bash", "-c", <<EOT
+(cd ${path.module}/LambdaEdgeFunctions/host_header && LAMBDA_FUNCTION_NAME=host_header \
+  LAMBDA_RUNTIME=${var.lambda_runtime} docker compose up; docker compose down) >&2 > /tmp/host_header.log && \
+echo "{\"target_dir\": \"${path.module}/LambdaEdgeFunctions/host_header\"}"
+EOT
+  ]
+}
+
 # The output_file_mode makes this zip file deterministic across environments
 data "archive_file" "zip_edge_rewrite" {
   type             = "zip"
@@ -113,6 +150,15 @@ data "archive_file" "zip_edge_security" {
   type             = "zip"
   source_dir       = data.external.security_lambda_dependencies.result.target_dir
   output_path      = "${path.module}/LambdaEdgeSecurityFunction.zip"
+  output_file_mode = "0666"
+}
+
+data "archive_file" "zip_edge_host_header" {
+  count = var.enable_hostname_rewrites ? 1 : 0
+
+  type             = "zip"
+  source_dir       = data.external.host_header_lambda_dependencies[0].result.target_dir
+  output_path      = "${path.module}/LambdaEdgeHostHeaderFunction.zip"
   output_file_mode = "0666"
 }
 
