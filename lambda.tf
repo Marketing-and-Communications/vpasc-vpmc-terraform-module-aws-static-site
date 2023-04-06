@@ -56,7 +56,7 @@ resource "aws_cloudwatch_log_group" "security_log_group" {
 resource "aws_cloudwatch_log_group" "host_header_log_group" {
   count = var.enable_hostname_rewrites ? 1 : 0
 
-  name              = "/aws/lambda/${aws_lambda_function.host_header.function_name}"
+  name              = "/aws/lambda/${aws_lambda_function.edge_host_header.function_name}"
   retention_in_days = var.log_expiration
 }
 
@@ -165,8 +165,17 @@ data "archive_file" "zip_edge_host_header" {
 
 
 # This was moved to lambda.tf so that localstack could use that file independently
+variable "enable_hostname_rewrites" {
+  type        = bool
+  description = "Whether or not to install a viewer lambda to capture the original hostname as an additional header to enable rewrites based on hostname, not just URI"
+  default     = false
+}
 variable "lambda_runtime" {
   type        = number
   description = "The node.js runtime version to use for the lambda@edge function"
   default     = 16
+}
+variable "site_settings" {
+  #type        = map(any)
+  description = "A map of site settings that represent user-configurable parameters"
 }
