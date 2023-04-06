@@ -56,7 +56,7 @@ resource "aws_cloudwatch_log_group" "security_log_group" {
 resource "aws_cloudwatch_log_group" "host_header_log_group" {
   count = var.enable_hostname_rewrites ? 1 : 0
 
-  name              = "/aws/lambda/${aws_lambda_function.edge_host_header.function_name}"
+  name              = "/aws/lambda/${aws_lambda_function.edge_host_header[0].function_name}"
   retention_in_days = var.log_expiration
 }
 
@@ -94,13 +94,13 @@ resource "aws_lambda_function" "edge_security" {
 resource "aws_lambda_function" "edge_host_header" {
   count = var.enable_hostname_rewrites ? 1 : 0
 
-  filename      = data.archive_file.zip_edge_security.output_path
-  function_name = "LambdaEdgeSecurityFunction-${var.deployment}"
+  filename      = data.archive_file.zip_edge_host_header[0].output_path
+  function_name = "LambdaEdgeHostHeaderFunction-${var.deployment}"
   role          = aws_iam_role.iam_for_lambda.arn
   handler       = "index.handler"
   publish       = true
 
-  source_code_hash = data.archive_file.zip_edge_security.output_base64sha256
+  source_code_hash = data.archive_file.zip_edge_host_header[0].output_base64sha256
 
   runtime = "nodejs${var.lambda_runtime}.x"
 
