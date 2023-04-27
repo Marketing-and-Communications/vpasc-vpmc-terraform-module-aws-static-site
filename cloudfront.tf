@@ -502,6 +502,10 @@ resource "aws_cloudfront_distribution" "site" {
       restriction_type = "none"
     }
   }
+
+  depends_on = [ 
+    aws_acm_certificate_validation.cert 
+  ]
 }
 
 

@@ -17,6 +17,10 @@ resource "aws_acm_certificate" "cert" {
   domain_name               = local.domain
   subject_alternative_names = local.sans
   validation_method         = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 # Cert validation entries for anything with a route53 address
