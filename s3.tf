@@ -76,6 +76,14 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "bucket_logging" {
   }
 }
 
+resource "aws_s3_bucket_ownership_controls" "bucket_logging" {
+  bucket = aws_s3_bucket.bucket_logging.id
+
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
 resource "aws_s3_bucket_policy" "site_bucket_policy" {
   bucket = aws_s3_bucket.bucket.bucket
 
