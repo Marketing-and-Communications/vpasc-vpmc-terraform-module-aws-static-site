@@ -16,7 +16,7 @@ EOF
 resource "aws_s3_object" "test_index" {
   bucket       = aws_s3_bucket.bucket.bucket
   key          = "index.html"
-  acl          = "public-read"
+  #acl          = "public-read"
   content      = local.test_index
   content_type = "text/html"
 
