@@ -67,6 +67,7 @@ resource "aws_globalaccelerator_endpoint_group" "ga_endpoint_group_443" {
 
 module "vpc" {
   source = "terraform-aws-modules/vpc/aws"
+  version = "4.0.2"
 
   count = local.ga ? 1 : 0
 
