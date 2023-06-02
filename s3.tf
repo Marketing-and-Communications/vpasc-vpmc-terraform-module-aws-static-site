@@ -117,4 +117,8 @@ resource "aws_s3_bucket_policy" "site_bucket_policy" {
         }
       ]
   })
+
+  depends_on = [
+    aws_s3_bucket_public_access_block.bucket
+  ]
 }
