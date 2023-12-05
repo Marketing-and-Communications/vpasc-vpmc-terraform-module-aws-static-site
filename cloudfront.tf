@@ -128,16 +128,10 @@ resource "aws_cloudfront_distribution" "site" {
       }
     }
 
-    # We don't normally do rewrites on index files, but in the case of a hostname-based
-    # redirect site, we need to
-    dynamic "lambda_function_association" {
-      for_each = local.enable_hostname_rewrites ? toset([0]) : toset([])
-
-      content {
-        event_type   = "origin-response"
-        lambda_arn   = aws_lambda_function.edge_security.qualified_arn
-        include_body = false
-      }
+    lambda_function_association {
+      event_type   = "origin-response"
+      lambda_arn   = aws_lambda_function.edge_security.qualified_arn
+      include_body = false
     }
 
     # We don't normally do rewrites on index files, but in the case of a hostname-based
